@@ -42,6 +42,22 @@ public class ProjetoService {
         return toResponse(buscarEntidadePorId(id));
     }
 
+    @Transactional
+    public ProjetoResponse atualizar(Long id, ProjetoRequest request) {
+        Projeto projeto = buscarEntidadePorId(id);
+        projeto.setNome(request.nome());
+        projeto.setRepositorio(request.repositorio());
+        projeto.setBranchBase(request.branchBase());
+
+        return toResponse(projetoRepository.save(projeto));
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        Projeto projeto = buscarEntidadePorId(id);
+        projetoRepository.delete(projeto);
+    }
+
     private Projeto buscarEntidadePorId(Long id) {
         return projetoRepository.findById(id)
                 .orElseThrow(() -> new ProjetoNaoEncontradoException(id));
