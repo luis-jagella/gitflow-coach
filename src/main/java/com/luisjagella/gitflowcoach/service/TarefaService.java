@@ -46,6 +46,21 @@ public class TarefaService {
         return toResponse(buscarEntidadePorId(id));
     }
 
+    @Transactional
+    public TarefaResponse atualizar(Long id, TarefaRequest request) {
+        Tarefa tarefa = buscarEntidadePorId(id);
+        Projeto projeto = buscarProjetoPorId(request.projetoId());
+        preencherDados(tarefa, request, projeto);
+
+        return toResponse(tarefaRepository.save(tarefa));
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        Tarefa tarefa = buscarEntidadePorId(id);
+        tarefaRepository.delete(tarefa);
+    }
+
     private Tarefa buscarEntidadePorId(Long id) {
         return tarefaRepository.findById(id)
                 .orElseThrow(() -> new TarefaNaoEncontradaException(id));
