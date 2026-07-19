@@ -13,9 +13,6 @@ public record TarefaRequest(
         @NotBlank(message = "A descrição é obrigatória")
         String descricao,
 
-        @NotBlank(message = "A branch sugerida é obrigatória")
-        String branchSugerida,
-
         @NotNull(message = "O projeto é obrigatório")
         Long projetoId
 ) {
