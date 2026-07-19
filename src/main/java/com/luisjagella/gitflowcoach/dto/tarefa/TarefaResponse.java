@@ -1,6 +1,7 @@
 package com.luisjagella.gitflowcoach.dto.tarefa;
 
 import com.luisjagella.gitflowcoach.dto.checklist.ChecklistItemResponse;
+import com.luisjagella.gitflowcoach.dto.git.GitCommandResponse;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public record TarefaResponse(
         String branchSugerida,
         Long projetoId,
         String projetoNome,
-        List<ChecklistItemResponse> checklist
+        List<ChecklistItemResponse> checklist,
+        List<GitCommandResponse> comandosGit
 ) {
 }

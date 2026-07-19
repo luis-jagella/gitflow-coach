@@ -1,6 +1,7 @@
 package com.luisjagella.gitflowcoach.service;
 
 import com.luisjagella.gitflowcoach.dto.checklist.ChecklistItemResponse;
+import com.luisjagella.gitflowcoach.dto.git.GitCommandResponse;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
 import com.luisjagella.gitflowcoach.entity.ChecklistItem;
@@ -24,19 +25,22 @@ public class TarefaService {
     private final BranchNameGenerator branchNameGenerator;
     private final ChecklistFactory checklistFactory;
     private final ChecklistItemRepository checklistItemRepository;
+    private final GitCommandGenerator gitCommandGenerator;
 
     public TarefaService(
             TarefaRepository tarefaRepository,
             ProjetoRepository projetoRepository,
             BranchNameGenerator branchNameGenerator,
             ChecklistFactory checklistFactory,
-            ChecklistItemRepository checklistItemRepository
+            ChecklistItemRepository checklistItemRepository,
+            GitCommandGenerator gitCommandGenerator
     ) {
         this.tarefaRepository = tarefaRepository;
         this.projetoRepository = projetoRepository;
         this.branchNameGenerator = branchNameGenerator;
         this.checklistFactory = checklistFactory;
         this.checklistItemRepository = checklistItemRepository;
+        this.gitCommandGenerator = gitCommandGenerator;
     }
 
     @Transactional
@@ -104,6 +108,10 @@ public class TarefaService {
                 .stream()
                 .map(this::toChecklistItemResponse)
                 .toList();
+        List<GitCommandResponse> comandosGit = gitCommandGenerator.gerar(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
+        );
 
         return new TarefaResponse(
                 tarefa.getId(),
@@ -113,7 +121,8 @@ public class TarefaService {
                 tarefa.getBranchSugerida(),
                 projeto.getId(),
                 projeto.getNome(),
-                checklist
+                checklist,
+                comandosGit
         );
     }
 
