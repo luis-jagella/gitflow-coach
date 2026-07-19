@@ -1,5 +1,6 @@
 package com.luisjagella.gitflowcoach.controller;
 
+import com.luisjagella.gitflowcoach.dto.git.GitCommandResponse;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
 import com.luisjagella.gitflowcoach.service.TarefaService;
@@ -41,6 +42,11 @@ public class TarefaController {
     @GetMapping("/{id}")
     public ResponseEntity<TarefaResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(tarefaService.buscarPorId(id));
+    }
+
+    @GetMapping("/{id}/comandos-git")
+    public ResponseEntity<List<GitCommandResponse>> buscarComandosGit(@PathVariable Long id) {
+        return ResponseEntity.ok(tarefaService.buscarComandosGit(id));
     }
 
     @PutMapping("/{id}")

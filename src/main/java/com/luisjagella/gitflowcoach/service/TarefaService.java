@@ -69,6 +69,11 @@ public class TarefaService {
         return toResponse(buscarEntidadePorId(id));
     }
 
+    @Transactional(readOnly = true)
+    public List<GitCommandResponse> buscarComandosGit(Long id) {
+        return gerarComandosGit(buscarEntidadePorId(id));
+    }
+
     @Transactional
     public TarefaResponse atualizar(Long id, TarefaRequest request) {
         Tarefa tarefa = buscarEntidadePorId(id);
@@ -108,10 +113,7 @@ public class TarefaService {
                 .stream()
                 .map(this::toChecklistItemResponse)
                 .toList();
-        List<GitCommandResponse> comandosGit = gitCommandGenerator.gerar(
-                projeto.getBranchBase(),
-                tarefa.getBranchSugerida()
-        );
+        List<GitCommandResponse> comandosGit = gerarComandosGit(tarefa);
 
         return new TarefaResponse(
                 tarefa.getId(),
@@ -123,6 +125,13 @@ public class TarefaService {
                 projeto.getNome(),
                 checklist,
                 comandosGit
+        );
+    }
+
+    private List<GitCommandResponse> gerarComandosGit(Tarefa tarefa) {
+        return gitCommandGenerator.gerar(
+                tarefa.getProjeto().getBranchBase(),
+                tarefa.getBranchSugerida()
         );
     }
 
