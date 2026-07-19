@@ -1,5 +1,6 @@
 package com.luisjagella.gitflowcoach.service;
 
+import com.luisjagella.gitflowcoach.dto.checklist.ChecklistItemResponse;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
 import com.luisjagella.gitflowcoach.entity.ChecklistItem;
@@ -99,6 +100,11 @@ public class TarefaService {
 
     private TarefaResponse toResponse(Tarefa tarefa) {
         Projeto projeto = tarefa.getProjeto();
+        List<ChecklistItemResponse> checklist = tarefa.getChecklist()
+                .stream()
+                .map(this::toChecklistItemResponse)
+                .toList();
+
         return new TarefaResponse(
                 tarefa.getId(),
                 tarefa.getCodigo(),
@@ -106,7 +112,17 @@ public class TarefaService {
                 tarefa.getDescricao(),
                 tarefa.getBranchSugerida(),
                 projeto.getId(),
-                projeto.getNome()
+                projeto.getNome(),
+                checklist
+        );
+    }
+
+    private ChecklistItemResponse toChecklistItemResponse(ChecklistItem item) {
+        return new ChecklistItemResponse(
+                item.getId(),
+                item.getDescricao(),
+                item.isConcluido(),
+                item.getOrdem()
         );
     }
 }
