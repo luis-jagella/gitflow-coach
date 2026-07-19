@@ -18,10 +18,16 @@ public class TarefaService {
 
     private final TarefaRepository tarefaRepository;
     private final ProjetoRepository projetoRepository;
+    private final BranchNameGenerator branchNameGenerator;
 
-    public TarefaService(TarefaRepository tarefaRepository, ProjetoRepository projetoRepository) {
+    public TarefaService(
+            TarefaRepository tarefaRepository,
+            ProjetoRepository projetoRepository,
+            BranchNameGenerator branchNameGenerator
+    ) {
         this.tarefaRepository = tarefaRepository;
         this.projetoRepository = projetoRepository;
+        this.branchNameGenerator = branchNameGenerator;
     }
 
     @Transactional
@@ -29,6 +35,7 @@ public class TarefaService {
         Projeto projeto = buscarProjetoPorId(request.projetoId());
         Tarefa tarefa = new Tarefa();
         preencherDados(tarefa, request, projeto);
+        tarefa.setBranchSugerida(branchNameGenerator.gerar(request.codigo(), request.titulo()));
 
         return toResponse(tarefaRepository.save(tarefa));
     }
@@ -75,7 +82,6 @@ public class TarefaService {
         tarefa.setCodigo(request.codigo());
         tarefa.setTitulo(request.titulo());
         tarefa.setDescricao(request.descricao());
-        tarefa.setBranchSugerida(request.branchSugerida());
         tarefa.setProjeto(projeto);
     }
 
