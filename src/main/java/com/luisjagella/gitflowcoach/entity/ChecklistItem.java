@@ -10,12 +10,17 @@ public class ChecklistItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String descricao;
 
+    @Column(nullable = false)
     private boolean concluido;
 
-    @ManyToOne
-    @JoinColumn(name = "tarefa_id")
+    @Column(nullable = false)
+    private int ordem;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "tarefa_id", nullable = false)
     private Tarefa tarefa;
 
     public Long getId() {
@@ -28,6 +33,10 @@ public class ChecklistItem {
 
     public boolean isConcluido() {
         return concluido;
+    }
+
+    public int getOrdem() {
+        return ordem;
     }
 
     public Tarefa getTarefa() {
@@ -44,6 +53,10 @@ public class ChecklistItem {
 
     public void setConcluido(boolean concluido) {
         this.concluido = concluido;
+    }
+
+    public void setOrdem(int ordem) {
+        this.ordem = ordem;
     }
 
     public void setTarefa(Tarefa tarefa) {

@@ -2,6 +2,9 @@ package com.luisjagella.gitflowcoach.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tarefas")
 public class Tarefa {
@@ -21,6 +24,10 @@ public class Tarefa {
     @ManyToOne
     @JoinColumn(name = "projeto_id")
     private Projeto projeto;
+
+    @OneToMany(mappedBy = "tarefa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("ordem ASC")
+    private List<ChecklistItem> checklist = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -46,6 +53,10 @@ public class Tarefa {
         return projeto;
     }
 
+    public List<ChecklistItem> getChecklist() {
+        return checklist;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -68,5 +79,10 @@ public class Tarefa {
 
     public void setProjeto(Projeto projeto) {
         this.projeto = projeto;
+    }
+
+    public void adicionarChecklistItem(ChecklistItem checklistItem) {
+        checklist.add(checklistItem);
+        checklistItem.setTarefa(this);
     }
 }

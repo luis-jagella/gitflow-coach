@@ -2,10 +2,12 @@ package com.luisjagella.gitflowcoach.service;
 
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
+import com.luisjagella.gitflowcoach.entity.ChecklistItem;
 import com.luisjagella.gitflowcoach.entity.Projeto;
 import com.luisjagella.gitflowcoach.entity.Tarefa;
 import com.luisjagella.gitflowcoach.exception.ProjetoNaoEncontradoException;
 import com.luisjagella.gitflowcoach.exception.TarefaNaoEncontradaException;
+import com.luisjagella.gitflowcoach.repository.ChecklistItemRepository;
 import com.luisjagella.gitflowcoach.repository.ProjetoRepository;
 import com.luisjagella.gitflowcoach.repository.TarefaRepository;
 import org.junit.jupiter.api.Test;
@@ -15,13 +17,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -42,11 +48,17 @@ class TarefaServiceTest {
     @Mock
     private BranchNameGenerator branchNameGenerator;
 
+    @Mock
+    private ChecklistFactory checklistFactory;
+
+    @Mock
+    private ChecklistItemRepository checklistItemRepository;
+
     @InjectMocks
     private TarefaService tarefaService;
 
     @Test
-    void deveCadastrarTarefaQuandoProjetoExistir() {
+    void deveCadastrarTarefaComChecklistQuandoProjetoExistir() {
         Projeto projeto = criarProjeto(PROJETO_ID, "Gitflow Coach");
         TarefaRequest request = criarRequest(PROJETO_ID);
         when(projetoRepository.findById(PROJETO_ID)).thenReturn(Optional.of(projeto));
@@ -55,6 +67,16 @@ class TarefaServiceTest {
             Tarefa tarefa = invocation.getArgument(0);
             tarefa.setId(TAREFA_ID);
             return tarefa;
+        });
+        when(checklistFactory.criarPara(any(Tarefa.class))).thenAnswer(invocation ->
+                criarChecklist(invocation.getArgument(0))
+        );
+        when(checklistItemRepository.saveAll(anyList())).thenAnswer(invocation -> {
+            List<ChecklistItem> itens = invocation.getArgument(0);
+            for (int indice = 0; indice < itens.size(); indice++) {
+                itens.get(indice).setId((long) indice + 1);
+            }
+            return itens;
         });
 
         TarefaResponse response = tarefaService.cadastrar(request);
@@ -69,10 +91,15 @@ class TarefaServiceTest {
                 () -> assertEquals(BRANCH_GERADA, response.branchSugerida()),
                 () -> assertEquals(PROJETO_ID, response.projetoId()),
                 () -> assertEquals(projeto.getNome(), response.projetoNome()),
+                () -> assertEquals(8, response.checklist().size()),
+                () -> assertEquals(1, response.checklist().get(0).ordem()),
+                () -> assertTrue(response.checklist().stream().noneMatch(item -> item.concluido())),
                 () -> assertEquals(BRANCH_GERADA, tarefaCaptor.getValue().getBranchSugerida()),
                 () -> assertSame(projeto, tarefaCaptor.getValue().getProjeto())
         );
         verify(branchNameGenerator).gerar(request.codigo(), request.titulo());
+        verify(checklistFactory).criarPara(tarefaCaptor.getValue());
+        verify(checklistItemRepository).saveAll(anyList());
     }
 
     @Test
@@ -85,7 +112,12 @@ class TarefaServiceTest {
                 () -> tarefaService.cadastrar(request)
         );
 
-        verifyNoInteractions(tarefaRepository, branchNameGenerator);
+        verifyNoInteractions(
+                tarefaRepository,
+                branchNameGenerator,
+                checklistFactory,
+                checklistItemRepository
+        );
     }
 
     @Test
@@ -152,6 +184,29 @@ class TarefaServiceTest {
         verify(tarefaRepository).delete(tarefa);
     }
 
+    @Test
+    void devePropagarFalhaAoSalvarChecklist() {
+        Projeto projeto = criarProjeto(PROJETO_ID, "Gitflow Coach");
+        TarefaRequest request = criarRequest(PROJETO_ID);
+        RuntimeException falha = new RuntimeException("Falha ao salvar checklist");
+        when(projetoRepository.findById(PROJETO_ID)).thenReturn(Optional.of(projeto));
+        when(branchNameGenerator.gerar(request.codigo(), request.titulo())).thenReturn(BRANCH_GERADA);
+        when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(checklistFactory.criarPara(any(Tarefa.class))).thenAnswer(invocation ->
+                criarChecklist(invocation.getArgument(0))
+        );
+        when(checklistItemRepository.saveAll(anyList())).thenThrow(falha);
+
+        RuntimeException excecao = assertThrows(
+                RuntimeException.class,
+                () -> tarefaService.cadastrar(request)
+        );
+
+        assertSame(falha, excecao);
+        verify(tarefaRepository).save(any(Tarefa.class));
+        verify(checklistItemRepository).saveAll(anyList());
+    }
+
     private TarefaRequest criarRequest(Long projetoId) {
         return new TarefaRequest(
                 "ISSUE-4",
@@ -179,5 +234,18 @@ class TarefaServiceTest {
         tarefa.setBranchSugerida("feat/3-tarefa-anterior");
         tarefa.setProjeto(projeto);
         return tarefa;
+    }
+
+    private List<ChecklistItem> criarChecklist(Tarefa tarefa) {
+        List<ChecklistItem> itens = new ArrayList<>();
+        for (int ordem = 1; ordem <= 8; ordem++) {
+            ChecklistItem item = new ChecklistItem();
+            item.setDescricao("Item " + ordem);
+            item.setConcluido(false);
+            item.setOrdem(ordem);
+            tarefa.adicionarChecklistItem(item);
+            itens.add(item);
+        }
+        return itens;
     }
 }

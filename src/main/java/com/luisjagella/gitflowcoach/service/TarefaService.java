@@ -1,11 +1,14 @@
 package com.luisjagella.gitflowcoach.service;
 
+import com.luisjagella.gitflowcoach.dto.checklist.ChecklistItemResponse;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
+import com.luisjagella.gitflowcoach.entity.ChecklistItem;
 import com.luisjagella.gitflowcoach.entity.Projeto;
 import com.luisjagella.gitflowcoach.entity.Tarefa;
 import com.luisjagella.gitflowcoach.exception.ProjetoNaoEncontradoException;
 import com.luisjagella.gitflowcoach.exception.TarefaNaoEncontradaException;
+import com.luisjagella.gitflowcoach.repository.ChecklistItemRepository;
 import com.luisjagella.gitflowcoach.repository.ProjetoRepository;
 import com.luisjagella.gitflowcoach.repository.TarefaRepository;
 import org.springframework.stereotype.Service;
@@ -19,15 +22,21 @@ public class TarefaService {
     private final TarefaRepository tarefaRepository;
     private final ProjetoRepository projetoRepository;
     private final BranchNameGenerator branchNameGenerator;
+    private final ChecklistFactory checklistFactory;
+    private final ChecklistItemRepository checklistItemRepository;
 
     public TarefaService(
             TarefaRepository tarefaRepository,
             ProjetoRepository projetoRepository,
-            BranchNameGenerator branchNameGenerator
+            BranchNameGenerator branchNameGenerator,
+            ChecklistFactory checklistFactory,
+            ChecklistItemRepository checklistItemRepository
     ) {
         this.tarefaRepository = tarefaRepository;
         this.projetoRepository = projetoRepository;
         this.branchNameGenerator = branchNameGenerator;
+        this.checklistFactory = checklistFactory;
+        this.checklistItemRepository = checklistItemRepository;
     }
 
     @Transactional
@@ -36,7 +45,11 @@ public class TarefaService {
         Tarefa tarefa = new Tarefa();
         preencherDados(tarefa, request, projeto);
 
-        return toResponse(tarefaRepository.save(tarefa));
+        Tarefa tarefaSalva = tarefaRepository.save(tarefa);
+        List<ChecklistItem> checklist = checklistFactory.criarPara(tarefaSalva);
+        checklistItemRepository.saveAll(checklist);
+
+        return toResponse(tarefaSalva);
     }
 
     @Transactional(readOnly = true)
@@ -87,6 +100,11 @@ public class TarefaService {
 
     private TarefaResponse toResponse(Tarefa tarefa) {
         Projeto projeto = tarefa.getProjeto();
+        List<ChecklistItemResponse> checklist = tarefa.getChecklist()
+                .stream()
+                .map(this::toChecklistItemResponse)
+                .toList();
+
         return new TarefaResponse(
                 tarefa.getId(),
                 tarefa.getCodigo(),
@@ -94,7 +112,17 @@ public class TarefaService {
                 tarefa.getDescricao(),
                 tarefa.getBranchSugerida(),
                 projeto.getId(),
-                projeto.getNome()
+                projeto.getNome(),
+                checklist
+        );
+    }
+
+    private ChecklistItemResponse toChecklistItemResponse(ChecklistItem item) {
+        return new ChecklistItemResponse(
+                item.getId(),
+                item.getDescricao(),
+                item.isConcluido(),
+                item.getOrdem()
         );
     }
 }
