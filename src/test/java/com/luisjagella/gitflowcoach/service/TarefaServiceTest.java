@@ -1,5 +1,6 @@
 package com.luisjagella.gitflowcoach.service;
 
+import com.luisjagella.gitflowcoach.dto.git.GitCommandResponse;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
 import com.luisjagella.gitflowcoach.entity.ChecklistItem;
@@ -54,6 +55,9 @@ class TarefaServiceTest {
     @Mock
     private ChecklistItemRepository checklistItemRepository;
 
+    @Mock
+    private GitCommandGenerator gitCommandGenerator;
+
     @InjectMocks
     private TarefaService tarefaService;
 
@@ -78,6 +82,8 @@ class TarefaServiceTest {
             }
             return itens;
         });
+        List<GitCommandResponse> comandosGit = criarComandosGit("main", BRANCH_GERADA);
+        when(gitCommandGenerator.gerar("main", BRANCH_GERADA)).thenReturn(comandosGit);
 
         TarefaResponse response = tarefaService.cadastrar(request);
 
@@ -94,12 +100,14 @@ class TarefaServiceTest {
                 () -> assertEquals(8, response.checklist().size()),
                 () -> assertEquals(1, response.checklist().get(0).ordem()),
                 () -> assertTrue(response.checklist().stream().noneMatch(item -> item.concluido())),
+                () -> assertEquals(comandosGit, response.comandosGit()),
                 () -> assertEquals(BRANCH_GERADA, tarefaCaptor.getValue().getBranchSugerida()),
                 () -> assertSame(projeto, tarefaCaptor.getValue().getProjeto())
         );
         verify(branchNameGenerator).gerar(request.codigo(), request.titulo());
         verify(checklistFactory).criarPara(tarefaCaptor.getValue());
         verify(checklistItemRepository).saveAll(anyList());
+        verify(gitCommandGenerator).gerar("main", BRANCH_GERADA);
     }
 
     @Test
@@ -116,7 +124,8 @@ class TarefaServiceTest {
                 tarefaRepository,
                 branchNameGenerator,
                 checklistFactory,
-                checklistItemRepository
+                checklistItemRepository,
+                gitCommandGenerator
         );
     }
 
@@ -125,6 +134,14 @@ class TarefaServiceTest {
         Projeto projeto = criarProjeto(PROJETO_ID, "Gitflow Coach");
         Tarefa tarefa = criarTarefa(TAREFA_ID, projeto);
         when(tarefaRepository.findById(TAREFA_ID)).thenReturn(Optional.of(tarefa));
+        List<GitCommandResponse> comandosGit = criarComandosGit(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
+        );
+        when(gitCommandGenerator.gerar(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
+        )).thenReturn(comandosGit);
 
         TarefaResponse response = tarefaService.buscarPorId(TAREFA_ID);
 
@@ -132,7 +149,12 @@ class TarefaServiceTest {
                 () -> assertEquals(TAREFA_ID, response.id()),
                 () -> assertEquals(tarefa.getCodigo(), response.codigo()),
                 () -> assertEquals(PROJETO_ID, response.projetoId()),
-                () -> assertEquals(projeto.getNome(), response.projetoNome())
+                () -> assertEquals(projeto.getNome(), response.projetoNome()),
+                () -> assertEquals(comandosGit, response.comandosGit())
+        );
+        verify(gitCommandGenerator).gerar(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
         );
     }
 
@@ -150,12 +172,15 @@ class TarefaServiceTest {
     void deveAtualizarTarefaProjetoEBranchGerada() {
         Projeto projetoAtual = criarProjeto(2L, "Projeto atual");
         Projeto novoProjeto = criarProjeto(PROJETO_ID, "Gitflow Coach");
+        novoProjeto.setBranchBase("develop");
         Tarefa tarefa = criarTarefa(TAREFA_ID, projetoAtual);
         TarefaRequest request = criarRequest(PROJETO_ID);
         when(tarefaRepository.findById(TAREFA_ID)).thenReturn(Optional.of(tarefa));
         when(projetoRepository.findById(PROJETO_ID)).thenReturn(Optional.of(novoProjeto));
         when(branchNameGenerator.gerar(request.codigo(), request.titulo())).thenReturn(BRANCH_GERADA);
         when(tarefaRepository.save(any(Tarefa.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        List<GitCommandResponse> comandosGit = criarComandosGit("develop", BRANCH_GERADA);
+        when(gitCommandGenerator.gerar("develop", BRANCH_GERADA)).thenReturn(comandosGit);
 
         TarefaResponse response = tarefaService.atualizar(TAREFA_ID, request);
 
@@ -166,11 +191,37 @@ class TarefaServiceTest {
                 () -> assertEquals(BRANCH_GERADA, response.branchSugerida()),
                 () -> assertEquals(PROJETO_ID, response.projetoId()),
                 () -> assertEquals(novoProjeto.getNome(), response.projetoNome()),
+                () -> assertEquals(comandosGit, response.comandosGit()),
                 () -> assertEquals(BRANCH_GERADA, tarefa.getBranchSugerida()),
                 () -> assertSame(novoProjeto, tarefa.getProjeto())
         );
         verify(branchNameGenerator).gerar(request.codigo(), request.titulo());
+        verify(gitCommandGenerator).gerar("develop", BRANCH_GERADA);
         verify(tarefaRepository).save(tarefa);
+    }
+
+    @Test
+    void deveBuscarComandosGitDaTarefa() {
+        Projeto projeto = criarProjeto(PROJETO_ID, "Gitflow Coach");
+        projeto.setBranchBase("versao/7.5");
+        Tarefa tarefa = criarTarefa(TAREFA_ID, projeto);
+        List<GitCommandResponse> comandosGit = criarComandosGit(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
+        );
+        when(tarefaRepository.findById(TAREFA_ID)).thenReturn(Optional.of(tarefa));
+        when(gitCommandGenerator.gerar(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
+        )).thenReturn(comandosGit);
+
+        List<GitCommandResponse> response = tarefaService.buscarComandosGit(TAREFA_ID);
+
+        assertEquals(comandosGit, response);
+        verify(gitCommandGenerator).gerar(
+                projeto.getBranchBase(),
+                tarefa.getBranchSugerida()
+        );
     }
 
     @Test
@@ -247,5 +298,18 @@ class TarefaServiceTest {
             itens.add(item);
         }
         return itens;
+    }
+
+    private List<GitCommandResponse> criarComandosGit(String branchBase, String branchSugerida) {
+        return List.of(
+                new GitCommandResponse(1, "Acessar a branch base", "git switch " + branchBase),
+                new GitCommandResponse(2, "Atualizar a branch base", "git pull origin " + branchBase),
+                new GitCommandResponse(3, "Criar a branch da tarefa", "git switch -c " + branchSugerida),
+                new GitCommandResponse(
+                        4,
+                        "Publicar a branch da tarefa",
+                        "git push -u origin " + branchSugerida
+                )
+        );
     }
 }
