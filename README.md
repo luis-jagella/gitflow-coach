@@ -1,4 +1,4 @@
-# GitFlow Coach
+# GitFlow Coach 😎
 
 API Spring Boot criada para apoiar equipes na adoção do Git, especialmente em ambientes que migraram de ferramentas centralizadas, como SVN, e ainda enfrentam dificuldades com branches, commits, pull requests e resolução de conflitos.
 
