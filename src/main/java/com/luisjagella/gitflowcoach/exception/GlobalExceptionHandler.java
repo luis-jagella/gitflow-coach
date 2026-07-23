@@ -4,6 +4,7 @@ import com.luisjagella.gitflowcoach.dto.error.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,6 +59,34 @@ public class GlobalExceptionHandler {
                 "Um ou mais campos estão inválidos",
                 request,
                 campos
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiErrorResponse> tratarCorpoInvalido(
+            HttpMessageNotReadableException exception,
+            HttpServletRequest request
+    ) {
+        return criarResposta(
+                HttpStatus.BAD_REQUEST,
+                "Requisição inválida",
+                "O corpo da requisição está ausente ou possui formato inválido",
+                request,
+                null
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> tratarArgumentoInvalido(
+            IllegalArgumentException exception,
+            HttpServletRequest request
+    ) {
+        return criarResposta(
+                HttpStatus.BAD_REQUEST,
+                "Argumento inválido",
+                exception.getMessage(),
+                request,
+                null
         );
     }
 
