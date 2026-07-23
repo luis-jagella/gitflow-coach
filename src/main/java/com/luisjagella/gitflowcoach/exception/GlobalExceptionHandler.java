@@ -90,6 +90,20 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponse> tratarErroInesperado(
+            Exception exception,
+            HttpServletRequest request
+    ) {
+        return criarResposta(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro interno",
+                "Ocorreu um erro interno inesperado",
+                request,
+                null
+        );
+    }
+
     private ResponseEntity<ApiErrorResponse> criarResposta(
             HttpStatus status,
             String erro,
