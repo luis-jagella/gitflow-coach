@@ -1,11 +1,14 @@
 package com.luisjagella.gitflowcoach.controller;
 
+import com.luisjagella.gitflowcoach.dto.error.ApiErrorResponse;
 import com.luisjagella.gitflowcoach.dto.git.GitCommandResponse;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaRequest;
 import com.luisjagella.gitflowcoach.dto.tarefa.TarefaResponse;
 import com.luisjagella.gitflowcoach.service.TarefaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +29,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/tarefas")
 @Tag(name = "Tarefas", description = "Gerenciamento de tarefas e orientações Git associadas")
-@ApiResponse(responseCode = "500", description = "Erro interno inesperado")
+@ApiResponse(
+        responseCode = "500",
+        description = "Erro interno inesperado",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+)
 public class TarefaController {
 
     private final TarefaService tarefaService;
@@ -42,8 +49,16 @@ public class TarefaController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Tarefa cadastrada"),
-            @ApiResponse(responseCode = "400", description = "Dados da tarefa inválidos"),
-            @ApiResponse(responseCode = "404", description = "Projeto associado não encontrado")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Dados da tarefa inválidos",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Projeto associado não encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            )
     })
     public ResponseEntity<TarefaResponse> cadastrar(@Valid @RequestBody TarefaRequest request) {
         TarefaResponse response = tarefaService.cadastrar(request);
@@ -67,7 +82,11 @@ public class TarefaController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tarefa encontrada"),
-            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Tarefa não encontrada",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            )
     })
     public ResponseEntity<TarefaResponse> buscarPorId(
             @Parameter(description = "Identificador da tarefa", example = "1")
@@ -83,7 +102,11 @@ public class TarefaController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Comandos Git gerados"),
-            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Tarefa não encontrada",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            )
     })
     public ResponseEntity<List<GitCommandResponse>> buscarComandosGit(
             @Parameter(description = "Identificador da tarefa", example = "1")
@@ -99,8 +122,16 @@ public class TarefaController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tarefa atualizada"),
-            @ApiResponse(responseCode = "400", description = "Dados da tarefa inválidos"),
-            @ApiResponse(responseCode = "404", description = "Tarefa ou projeto associado não encontrado")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Dados da tarefa inválidos",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Tarefa ou projeto associado não encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            )
     })
     public ResponseEntity<TarefaResponse> atualizar(
             @Parameter(description = "Identificador da tarefa", example = "1")
@@ -114,7 +145,11 @@ public class TarefaController {
     @Operation(summary = "Excluir tarefa", description = "Remove uma tarefa existente")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Tarefa excluída"),
-            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada")
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Tarefa não encontrada",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            )
     })
     public ResponseEntity<Void> excluir(
             @Parameter(description = "Identificador da tarefa", example = "1")

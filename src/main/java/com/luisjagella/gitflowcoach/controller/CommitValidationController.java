@@ -2,6 +2,7 @@ package com.luisjagella.gitflowcoach.controller;
 
 import com.luisjagella.gitflowcoach.dto.commit.CommitValidationRequest;
 import com.luisjagella.gitflowcoach.dto.commit.CommitValidationResponse;
+import com.luisjagella.gitflowcoach.dto.error.ApiErrorResponse;
 import com.luisjagella.gitflowcoach.service.CommitMessageValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,7 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/commits")
 @Tag(name = "Commits", description = "Validação de mensagens no padrão Conventional Commits")
-@ApiResponse(responseCode = "500", description = "Erro interno inesperado")
+@ApiResponse(
+        responseCode = "500",
+        description = "Erro interno inesperado",
+        content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+)
 public class CommitValidationController {
 
     private final CommitMessageValidator commitMessageValidator;
@@ -53,7 +58,11 @@ public class CommitValidationController {
                             }
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "Request estruturalmente inválido")
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Request estruturalmente inválido",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiErrorResponse.class))
+            )
     })
     public ResponseEntity<CommitValidationResponse> validar(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
