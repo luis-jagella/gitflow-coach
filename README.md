@@ -164,6 +164,26 @@ Em Linux ou macOS:
 ./mvnw spring-boot:run
 ```
 
+### Execução local com H2
+
+Para iniciar a aplicação com o perfil de desenvolvimento, sem depender de uma instalação do MySQL:
+
+```bash
+./mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
+```
+
+Serviços disponíveis:
+
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- OpenAPI: http://localhost:8080/v3/api-docs
+- Console H2: http://localhost:8080/h2-console
+
+Dados para acesso ao H2:
+
+- JDBC URL: `jdbc:h2:mem:gitflow_coach_dev`
+- usuário: `sa`
+- senha: vazia
+
 ## Estratégia de desenvolvimento
 
 O projeto será desenvolvido com:
