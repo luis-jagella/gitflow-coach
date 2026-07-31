@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
+import { EmptyState } from '../components/feedback/EmptyState'
 import { PageHeader } from '../components/layout/PageHeader'
+import { Card } from '../components/ui/Card'
 
 export function NotFoundPage() {
   return (
@@ -9,9 +11,17 @@ export function NotFoundPage() {
         title="Página não encontrada"
         description="O endereço acessado não existe ou foi movido."
       />
-      <section className="page-placeholder">
-        <Link to="/">Voltar ao dashboard</Link>
-      </section>
+      <Card>
+        <EmptyState
+          title="Este caminho não leva a lugar algum"
+          description="Use a navegação ou retorne ao dashboard."
+          action={
+            <Link className="button button--primary" to="/">
+              Voltar ao dashboard
+            </Link>
+          }
+        />
+      </Card>
     </div>
   )
 }

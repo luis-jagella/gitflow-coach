@@ -1,4 +1,6 @@
 import { PageHeader } from '../components/layout/PageHeader'
+import { EmptyState } from '../components/feedback/EmptyState'
+import { Card } from '../components/ui/Card'
 
 export function ProjetosPage() {
   return (
@@ -8,9 +10,12 @@ export function ProjetosPage() {
         title="Projetos"
         description="Consulte repositórios, branches base e convenções do time."
       />
-      <section className="page-placeholder">
-        <p>Os projetos cadastrados aparecerão aqui.</p>
-      </section>
+      <Card>
+        <EmptyState
+          title="Nenhum projeto para exibir"
+          description="Os projetos cadastrados na API aparecerão nesta página."
+        />
+      </Card>
     </div>
   )
 }

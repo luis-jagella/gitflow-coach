@@ -1,4 +1,6 @@
 import { PageHeader } from '../components/layout/PageHeader'
+import { EmptyState } from '../components/feedback/EmptyState'
+import { Card } from '../components/ui/Card'
 
 export function TarefasPage() {
   return (
@@ -8,9 +10,12 @@ export function TarefasPage() {
         title="Tarefas"
         description="Visualize branches sugeridas e o progresso dos checklists."
       />
-      <section className="page-placeholder">
-        <p>As tarefas do time aparecerão aqui.</p>
-      </section>
+      <Card>
+        <EmptyState
+          title="Nenhuma tarefa para exibir"
+          description="As tarefas cadastradas na API aparecerão nesta página."
+        />
+      </Card>
     </div>
   )
 }

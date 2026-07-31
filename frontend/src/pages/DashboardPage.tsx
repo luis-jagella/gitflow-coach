@@ -1,4 +1,6 @@
 import { PageHeader } from '../components/layout/PageHeader'
+import { EmptyState } from '../components/feedback/EmptyState'
+import { Card } from '../components/ui/Card'
 
 export function DashboardPage() {
   return (
@@ -8,9 +10,12 @@ export function DashboardPage() {
         title="Dashboard"
         description="Acompanhe os projetos, tarefas e o ritmo do fluxo de desenvolvimento."
       />
-      <section className="page-placeholder">
-        <p>Os indicadores do seu fluxo aparecerão aqui.</p>
-      </section>
+      <Card>
+        <EmptyState
+          title="Seu fluxo começa aqui"
+          description="Os indicadores aparecerão assim que a API retornar projetos e tarefas."
+        />
+      </Card>
     </div>
   )
 }

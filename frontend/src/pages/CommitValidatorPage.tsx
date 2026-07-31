@@ -1,4 +1,5 @@
 import { PageHeader } from '../components/layout/PageHeader'
+import { Card } from '../components/ui/Card'
 
 export function CommitValidatorPage() {
   return (
@@ -8,9 +9,9 @@ export function CommitValidatorPage() {
         title="Validar commit"
         description="Confira mensagens antes de registrar mudanças no repositório."
       />
-      <section className="page-placeholder">
+      <Card className="page-placeholder">
         <p>O validador de mensagens aparecerá aqui.</p>
-      </section>
+      </Card>
     </div>
   )
 }
