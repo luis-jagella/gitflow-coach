@@ -184,6 +184,23 @@ Dados para acesso ao H2:
 - usuário: `sa`
 - senha: vazia
 
+### Interface web
+
+Com o backend em execução no perfil `dev`, abra outro terminal e inicie o frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Endereços locais:
+
+- Frontend: http://localhost:5173
+- API: http://localhost:8080
+
+Durante o desenvolvimento, o Vite encaminha as chamadas iniciadas por `/api` para o backend local.
+
 ## Estratégia de desenvolvimento
 
 O projeto será desenvolvido com:
