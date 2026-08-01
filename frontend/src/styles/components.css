@@ -1,0 +1,226 @@
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgb(27 32 44 / 88%), rgb(20 24 33 / 94%));
+  box-shadow: var(--shadow-card);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 25px;
+  padding: 4px 9px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+  background: rgb(255 255 255 / 3%);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+.badge--accent {
+  border-color: rgb(124 109 242 / 30%);
+  color: #b9b1ff;
+  background: var(--color-accent-soft);
+}
+
+.badge--success {
+  border-color: rgb(79 209 165 / 28%);
+  color: #91e4c8;
+  background: var(--color-success-soft);
+}
+
+.badge--warning {
+  border-color: rgb(242 189 92 / 28%);
+  color: #f5cc81;
+  background: var(--color-warning-soft);
+}
+
+.badge--error {
+  border-color: rgb(244 118 131 / 28%);
+  color: #f7a1aa;
+  background: var(--color-error-soft);
+}
+
+.button {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 720;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.button--primary {
+  color: white;
+  background: linear-gradient(135deg, var(--color-accent), #6252d3);
+  box-shadow: 0 10px 24px rgb(86 70 200 / 22%);
+}
+
+.button--secondary {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+}
+
+.button--ghost {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: transparent;
+}
+
+.feedback-state {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  align-content: center;
+  padding: 42px 24px;
+  text-align: center;
+}
+
+.feedback-state__icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 17px;
+  place-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 12px;
+  color: var(--color-text-secondary);
+  background: var(--color-background-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 800;
+}
+
+.feedback-state h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.feedback-state p {
+  max-width: 440px;
+  margin: 9px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.feedback-state__action,
+.feedback-state > .button {
+  margin-top: 20px;
+}
+
+.feedback-state--error .feedback-state__icon {
+  border-color: rgb(244 118 131 / 25%);
+  color: var(--color-error);
+  background: var(--color-error-soft);
+}
+
+.loading-indicator {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 16px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent-strong);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field label {
+  color: var(--color-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.field__hint {
+  color: var(--color-text-secondary);
+  font-size: 0.73rem;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  outline: 0;
+  background: var(--color-background-soft);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.input {
+  min-height: 46px;
+  padding: 10px 13px;
+}
+
+.textarea {
+  min-height: 122px;
+  padding: 13px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.code-block {
+  overflow-x: auto;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: #c9c3ff;
+  background: #0d1016;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
