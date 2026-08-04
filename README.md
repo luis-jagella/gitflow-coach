@@ -223,18 +223,18 @@ chore: altera configuração ou infraestrutura
 
 ## Roadmap
 
-- [ ] Finalizar CRUD de projetos;
-- [ ] Implementar CRUD de tarefas;
-- [ ] Gerar nomes de branches automaticamente;
-- [ ] Criar checklist padrão ao cadastrar tarefa;
-- [ ] Gerar comandos Git conforme o contexto;
-- [ ] Validar Conventional Commits;
-- [ ] Adicionar tratamento global de exceções;
-- [ ] Implementar autenticação e autorização;
-- [ ] Integrar com a API do GitHub;
-- [ ] Adicionar testes unitários e de integração;
+- [X] Finalizar CRUD de projetos;
+- [X] Implementar CRUD de tarefas;
+- [X] Gerar nomes de branches automaticamente;
+- [X] Criar checklist padrão ao cadastrar tarefa;
+- [X] Gerar comandos Git conforme o contexto;
+- [X] Validar Conventional Commits;
+- [X] Adicionar tratamento global de exceções;
+- [X] Implementar autenticação e autorização;
+- [X] Integrar com a API do GitHub;
+- [X] Adicionar testes unitários e de integração;
 - [ ] Dockerizar a aplicação;
-- [ ] Criar interface web.
+- [X] Criar interface web.
 
 ## Contexto acadêmico
 
